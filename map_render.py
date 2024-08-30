@@ -2,7 +2,7 @@ from math import cos
 from svgwrite import Drawing
 import svgwrite
 
-from helpers import DefaultAppValues
+from helpers import safe_matching_id, DefaultAppValues
 from labels import Side
 from logger import logger
 from section import Section
@@ -60,28 +60,28 @@ class MapRender:
             # starting and ending addresses of the linked section/s is visible and available
             # inside of a single area
             for area in self.area_views:
-                start = None
-                end = None
-
                 # Exit loop if we found that the link is valid
                 if appended:
                     break
 
                 for section in area.sections.get_sections():
+                    start = None
+                    end = None
+
                     # If single section, the start and end address of the linked section equals
                     # those of the section
                     if not multi_section:
-                        if section.id == linked_section:
+                        if safe_matching_id(section.id, linked_section):
                             l_sections.append([section.address, section.address + section.size])
                             appended = True
-                            break
+
                     # If multiple section, the start and end address of the linked section are the
                     # start of the first provided section and the end of the second provided section
                     # respectively
                     else:
-                        if section.id == linked_section[0]:
+                        if safe_matching_id(section.id, linked_section[0]):
                             start = section.address
-                        elif section.id == linked_section[1]:
+                        elif safe_matching_id(section.id, linked_section[1]):
                             end = section.address + section.size
 
                         # If before finishing the iteration on this area, we found a valid start and
@@ -89,7 +89,6 @@ class MapRender:
                         if start is not None and end is not None:
                             l_sections.append([start, end])
                             appended = True
-                            break
 
                 # If we finish iterating the area, and we have a valid start (or end) address but
                 # the section was not appended, means that the other end of the section is at

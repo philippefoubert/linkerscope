@@ -4,6 +4,7 @@ import yaml
 from logger import logger
 from section import Section
 from gnu_linker_map_parser import GNULinkerMapParser
+from dcc_linker_map_parser import DCCLinkerMapParser
 
 
 class MapFileLoader:
@@ -12,15 +13,16 @@ class MapFileLoader:
     Depending on the type of file (.map or .yaml) will include an additional conversion step and
     create a temporary .yaml file
     """
-    def __init__(self, file, convert):
+    def __init__(self, file, linker, convert):
         self.input_filename = file
+        self.linker = linker
         self.convert = convert
 
     def parse(self):
         _, file_extension = os.path.splitext(self.input_filename)
 
         if file_extension == '.map':
-            self.parse_map(self.input_filename)
+            self.parse_map(self.input_filename, self.linker)
             if self.convert:
                 logger.info(".map file converted and saved as map.yaml")
                 exit(0)
@@ -56,5 +58,10 @@ class MapFileLoader:
         return sections
 
     @staticmethod
-    def parse_map(input_filename):
-        GNULinkerMapParser(input_filename=input_filename, output_filename='map.yaml').parse()
+    def parse_map(input_filename, linker):
+        if 'GNU' == linker:
+            GNULinkerMapParser(input_filename=input_filename, output_filename='map.yaml').parse()
+        elif 'DCC' == linker:
+            DCCLinkerMapParser(input_filename=input_filename, output_filename='map.yaml').parse()
+        else:
+            logger.error("Unexpected linker (%s)", linker)

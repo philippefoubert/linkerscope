@@ -1,3 +1,5 @@
+import re
+
 from logger import logger
 
 
@@ -8,6 +10,19 @@ class DefaultAppValues:
     SIZE_X = 200
     SIZE_Y = 500
     TITLE = ''
+
+
+def safe_matching_id(_id: str, _pattern: str) -> bool:
+    """
+    Check if an element matches a pattern
+
+    :param _id: item to analyse
+    :param _pattern: pattern to search
+    :return: True if the pattern is matched, False if it doesn't
+    """
+    p = re.compile(_pattern)
+    return p.search(_id) is not None
+
 
 def safe_element_list_get(_list: [], index: int, default=None) -> int:
     """

@@ -1,6 +1,6 @@
 import copy
 
-from helpers import safe_element_list_get, safe_element_dict_get, DefaultAppValues
+from helpers import safe_matching_id, safe_element_list_get, safe_element_dict_get, DefaultAppValues
 from labels import Labels
 from logger import logger
 from style import Style
@@ -113,7 +113,7 @@ class AreaView:
                     section_names = []
 
                 for item in section_names:
-                    if item == section.id:
+                    if safe_matching_id(section.id, item):
                         # OVERWRITE style, address, size and type if needed
                         section_style.override_properties_from(Style(style=element.get('style')))
                         section.address = element.get('address', section.address)
